@@ -4,6 +4,7 @@ import { getDieLines, getStoneLine, getBombLines, FACE_COLOR, RenderCell } from 
 
 export interface TileProps {
   cell: Cell;
+  cellSize: number;
   isInChain: boolean;
   chainIndex: number;
   isAtCap: boolean;
@@ -31,6 +32,7 @@ function dieFaceForFuseColor(color: DieColor): number {
  */
 export default function Tile({
   cell,
+  cellSize,
   isInChain,
   chainIndex,
   isAtCap,
@@ -56,6 +58,10 @@ export default function Tile({
   if (cell.state === 'EMPTY') {
     return null;
   }
+
+  // Calculate precise font size so 9 characters fit exactly in the cell width
+  // Monospace font width is typically ~0.6 * fontSize. 9 * 0.6 = 5.4.
+  const exactFontSize = cellSize / 5.5;
 
   let renderCell: RenderCell | null = null;
   let pointerEventsStyle: React.CSSProperties = {};
@@ -107,20 +113,24 @@ export default function Tile({
 
   const content = (
     <pre
-      className={`font-mono leading-none select-none cursor-default ${extraClasses}`}
-      style={{ margin: 0, padding: 0, lineHeight: '1em', ...pointerEventsStyle }}
+      className={`font-mono font-extrabold select-none cursor-default ${extraClasses}`}
+      style={{ margin: 0, padding: 0, lineHeight: '1.08em', fontSize: `${exactFontSize}px`, letterSpacing: 0, ...pointerEventsStyle }}
       onPointerDown={onPointerDown}
       onPointerEnter={onPointerEnter}
       onPointerUp={onPointerUp}
       onClick={onClickHandler}
     >
       {renderCell.map((line, i) => (
-        <div key={i}>
-          {line.map((seg, j) => (
-            <span key={j} className={seg.cls}>
-              {seg.text}
-            </span>
-          ))}
+        <div key={i} className="flex justify-center w-full">
+          {line.map((seg, j) => {
+            const isNumber = /^[1-6]$/.test(seg.text);
+            const segCls = isNumber ? `${seg.cls} font-black` : seg.cls;
+            return (
+              <span key={j} className={segCls} style={{ whiteSpace: 'pre' }}>
+                {seg.text}
+              </span>
+            );
+          })}
         </div>
       ))}
       {isInChain && chainIndex >= 0 && (

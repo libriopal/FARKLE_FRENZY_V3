@@ -1,0 +1,123 @@
+{
+  "_format": "farkle-patch-v1",
+  "_generated_by": "Claude + Google AI Studio",
+  "_instructions": "See SANDBOX_README.md for how to create, load, and finalize patches.",
+
+  "patch": {
+    "id": "patch-REPLACE-WITH-SLUG",
+    "name": "PATCH NAME HERE",
+    "version": "0.1.0",
+    "description": "One sentence: what this patch adds or changes.",
+    "author": "Your name or 'Claude'",
+    "created": "YYYY-MM-DD",
+    "status": "draft",
+    "tags": ["blocker", "bomb", "tile", "scoring", "visual", "rtp"],
+    "target_updates": ["06", "07"],
+    "notes": "Any design notes, constraints, or open questions."
+  },
+
+  "changes": [
+    {
+      "file": "packages/shared/src/types.ts",
+      "type": "append",
+      "target_anchor": "// PATCH ANCHOR: types",
+      "description": "Add new type definition for this feature",
+      "content": "// PASTE NEW TYPE CODE HERE\n// Example: export type MyNewType = { ... };"
+    },
+    {
+      "file": "packages/engine/src/gridUtils.ts",
+      "type": "insert",
+      "target_anchor": "// PATCH ANCHOR: gridUtils",
+      "description": "Add new grid utility function",
+      "content": "// PASTE NEW FUNCTION CODE HERE"
+    },
+    {
+      "file": "apps/client/src/components/Tile.tsx",
+      "type": "replace",
+      "target_anchor": "// PATCH ANCHOR: tile-render",
+      "description": "Add new tile visual branch for new tile type",
+      "content": "// PASTE TILE RENDER BRANCH HERE"
+    }
+  ],
+
+  "rtp_impact": {
+    "calculation_status": "pending",
+    "baseline_rtp": null,
+    "baseline_mode": "SOLO_FREE",
+    "baseline_blocker_density": "MEDIUM",
+    "baseline_simulation_runs": 4000,
+    "baseline_avg_score": null,
+
+    "projected_rtp": null,
+    "projected_avg_score": null,
+    "confidence": "low",
+    "simulation_runs_for_projection": 4000,
+
+    "rtp_delta": null,
+    "rtp_delta_direction": "unknown",
+    "rtp_delta_magnitude": "unknown",
+
+    "spawn_weight_adjustments": {
+      "face_1": 0.0,
+      "face_5": 0.0,
+      "face_2": 0.0,
+      "face_3": 0.0,
+      "face_4": 0.0,
+      "face_6": 0.0,
+      "notes": "Adjustments sum to 0.0. Positive = increase spawn rate, negative = decrease."
+    },
+
+    "normalizer_adjustment": 0.0,
+    "normalizer_notes": "Set to 0.0 unless RTP delta exceeds ±2%.",
+
+    "rtp_analysis": "PENDING — Run sandbox simulation to populate this section.",
+
+    "acceptable_rtp_range": {
+      "min": 0.80,
+      "max": 1.05,
+      "notes": "Patches that push RTP outside this range require manual review."
+    }
+  },
+
+  "test_results": {
+    "sandbox_sessions_run": 0,
+    "avg_score_with_patch": null,
+    "farkle_rate_with_patch": null,
+    "bomb_trigger_rate": null,
+    "avg_chain_length": null,
+    "multiplier_distribution": {
+      "x1_0": null,
+      "x1_25": null,
+      "x1_5": null,
+      "x2_0": null,
+      "x3_0": null,
+      "x4_0": null
+    },
+    "notes": "Populated by Sandbox RTP simulation engine after testing."
+  },
+
+  "studio_prompt": {
+    "ref": "PENDING — Claude will generate and attach the Studio prompt here.",
+    "model_used": "gemini-2.5-pro",
+    "generated_date": null,
+    "files_generated": []
+  },
+
+  "apply_order": {
+    "step_1": "Apply types.ts changes first",
+    "step_2": "Apply engine changes second",
+    "step_3": "Apply component changes last",
+    "step_4": "Run RTP simulation in Sandbox",
+    "step_5": "Adjust spawn_weight_adjustments if needed",
+    "step_6": "Re-run simulation to confirm RTP within acceptable range",
+    "step_7": "Export finalized patch"
+  },
+
+  "revert_instructions": "Remove all code blocks with the comment '// PATCH: {patch.id}' to revert.",
+
+  "compatibility": {
+    "min_game_version": "update-06",
+    "conflicts_with": [],
+    "requires_patches": []
+  }
+}

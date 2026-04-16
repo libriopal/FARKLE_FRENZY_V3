@@ -61,13 +61,41 @@ export function getDieLines(
 
   if (status === 'frozen') {
     lines.push([{ text: '╔═══════╗', cls: 'text-cyan-200' }]);
-    lines.push([{ text: '║~~~~~~~║', cls: 'text-cyan-200' }]);
-    lines.push([
-      { text: '║~  ', cls: 'text-cyan-200' },
-      { text: '●', cls: FACE_COLOR[value] },
-      { text: '  ~║', cls: 'text-cyan-200' }
-    ]);
-    lines.push([{ text: '║~~~~~~~║', cls: 'text-cyan-200' }]);
+    
+    const pips = PIP_LAYOUTS[value];
+    
+    for (let i = 0; i < 3; i++) {
+      const line: RenderLine = [];
+      line.push({ text: '║', cls: 'text-cyan-200' });
+      
+      const rowStr = pips[i];
+      let currentText = '';
+      let currentIsPip = false;
+
+      for (let j = 0; j < 7; j++) {
+        const char = rowStr[j];
+        const isPip = char === '●';
+        if (j === 0) {
+          currentText = char;
+          currentIsPip = isPip;
+        } else {
+          if (isPip === currentIsPip) {
+            currentText += char;
+          } else {
+            line.push({ text: currentText, cls: currentIsPip ? FACE_COLOR[value] : 'text-cyan-900' });
+            currentText = char;
+            currentIsPip = isPip;
+          }
+        }
+      }
+      if (currentText) {
+        line.push({ text: currentText, cls: currentIsPip ? FACE_COLOR[value] : 'text-cyan-900' });
+      }
+
+      line.push({ text: '║', cls: 'text-cyan-200' });
+      lines.push(line);
+    }
+
     lines.push([{ text: '╚═══════╝', cls: 'text-cyan-200' }]);
     return verifyLines(lines);
   }

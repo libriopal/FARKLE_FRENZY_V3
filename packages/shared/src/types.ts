@@ -100,6 +100,9 @@ export interface LobbySettings {
   rainbowRedReward: number;
   rainbowBlueReward: number;
   betAmount?: number;
+  // Sweepstakes additions
+  currencyMode: CurrencyMode;    // which wallet is active this session
+  stakeAmount: number;           // FD or PDX units wagered per session
 }
 
 export interface RTPConfig {
@@ -112,7 +115,9 @@ export interface RTPConfig {
 export const DEFAULT_SETTINGS: LobbySettings = {
   mode:'SOLO_FREE', playerCount:1, turnTimerSeconds:10,
   blockerDensity:'MEDIUM', threeOnesScore:1000,
-  singleOneScore:100, rainbowRedReward:100, rainbowBlueReward:50
+  singleOneScore:100, rainbowRedReward:100, rainbowBlueReward:50,
+  currencyMode: 'FD' as CurrencyMode,
+  stakeAmount: 100,
 };
 
 export function multiplayerGridSize(players: number): number {
@@ -159,3 +164,146 @@ export type ServerMsg =
   | { type:'SEED_REVEAL';     serverSeed:string; combinedSeed:string }
   | { type:'GAME_OVER';       winner?:string; finalScores:Record<string,number>; replayHash:string }
   | { type:'ERROR';           message:string };
+
+// ── SWEEPSTAKES CURRENCY SYSTEM ─────────────────────────────
+
+export type CurrencyMode = 'FD' | 'PDX';
+// FD = Farkle Dust (chaotic fun, disposable / for fun, cannot be redeemed)
+// PDX = Prime Dice (premium / prize-eligible, earned free, redeemable 1:1 for USD)
+
+export interface PlayerWallet {
+  fd: number;                   // Farkle Dust balance
+  pdx: number;                   // Prime Dice balance
+  pdxPlaythroughTotal: number;   // Lifetime PDX wagered (for redemption eligibility)
+  pdxPlaythroughRequired: number; // Target before redemption unlocks (pdx × playthrough rate)
+  lastDailyBonus: string | null; // ISO date string of last PDX daily claim
+}
+
+export const DEFAULT_WALLET: PlayerWallet = {
+  fd: 10000,                    // New players start with 10,000 FD
+  pdx: 100,                      // New players start with 100 PDX (welcome bonus)
+  pdxPlaythroughTotal: 0,
+  pdxPlaythroughRequired: 0,
+  lastDailyBonus: null,
+};
+
+export const DAILY_PDX_BONUS = 50;       // PDX awarded on daily login
+export const PDX_PLAYTHROUGH_RATE = 1;   // 1× PDX playthrough required before redemption
+export const FD_TO_PDX_GIFT_RATE = 0.1;  // Every 100 FD disposable / for fun gifts 10 PDX
+
+/** Prime Dice are pegged 1:1 to USD for prize redemption purposes. */
+export const PDX_USD_RATE = 1;
+
+/** Farkle Dust has no monetary value — entertainment only. */
+export const FD_HAS_MONETARY_VALUE = false;
+
+// ── SWEEPSTAKES COMPLIANCE STUBS ────────────────────────────
+
+export type KYCStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
+
+export type GeoStatus = 'ALLOWED' | 'RESTRICTED' | 'UNKNOWN';
+
+export interface ComplianceState {
+  kycStatus: KYCStatus;
+  geoStatus: GeoStatus;
+  restrictedStates: string[]; // e.g. ['WA', 'MI', 'CT']
+}
+
+// ── TRANSACTION AUDIT LOG ENTRY ──────────────────────────────
+
+export type TransactionType =
+  | 'FD_PURCHASE'        // User bought FD
+  | 'PDX_GIFT'            // PDX gifted alongside FD disposable / for fun
+  | 'PDX_DAILY_BONUS'     // Daily login PDX credit
+  | 'PDX_AMOE'            // Alternative Method of Entry credit
+  | 'FD_WAGER'           // FD spent starting a game
+  | 'PDX_WAGER'           // PDX spent starting a game
+  | 'FD_AWARD'           // FD winnings credited
+  | 'PDX_AWARD'           // PDX winnings credited
+  | 'PDX_REDEMPTION';     // PDX converted to prize payout
+
+export interface WalletTransaction {
+  id: string;
+  type: TransactionType;
+  currency: 'FD' | 'PDX';
+  amount: number;
+  balanceAfter: number;
+  timestamp: string;       // ISO datetime
+  sessionId?: string;      // linked game session if applicable
+  notes?: string;
+}
+
+// ── ASCII ART ICONS ─────────────────────────────────────────
+
+/**
+ * @asset FD_ASCII_ICON
+ * @colors deep-purple #7C3AED | baby-blue #93C5FD | silver #D1D5DB
+ *
+ *   ✦  · ˖  ✦
+ *  ·  ░▒▓█▓▒░  ·
+ * ˖  ▓  ◈ ◈  ▓  ˖
+ *  · ▒ ◈  ✦  ◈ ▒ ·
+ *   ░  ▓ ◈ ▓  ░
+ *  · ˖  ░▒▓▒░  ˖ ·
+ *     ✦  · ˖  ✦
+ *
+ *  ─── FARKLE DUST ───
+ *      F  ·D·
+ */
+export const FD_ASCII_ICON = `
+  ✦  · ˖  ✦
+ ·  ░▒▓█▓▒░  ·
+˖  ▓  ◈ ◈  ▓  ˖
+ · ▒ ◈  ✦  ◈ ▒ ·
+  ░  ▓ ◈ ▓  ░
+ · ˖  ░▒▓▒░  ˖ ·
+    ✦  · ˖  ✦
+─── FARKLE DUST ───
+     F  ·D·
+` as const;
+
+/**
+ * @asset PDX_ASCII_ICON
+ * @colors emerald #10B981 | sapphire #1D4ED8 | gold #F59E0B
+ *
+ *     ╔═══════╗
+ *     ║ ◆   ◆ ║
+ *     ║       ║
+ *  ◈  ║   ◆   ║  ◈
+ *     ║       ║
+ *     ║ ◆   ◆ ║
+ *     ╚═══════╝
+ *   ══ PRIME DICE ══
+ *      P·D·X  ◆
+ */
+export const PDX_ASCII_ICON = `
+    ╔═══════╗
+    ║ ◆   ◆ ║
+    ║       ║
+ ◈  ║   ◆   ║  ◈
+    ║       ║
+    ║ ◆   ◆ ║
+    ╚═══════╝
+  ══ PRIME DICE ══
+     P·D·X  ◆
+` as const;
+
+// ── COLOR TOKEN CONSTANTS ───────────────────────────────────
+
+/** Tailwind class refs for FD (Farkle Dust) UI theming */
+export const FD_COLORS = {
+  primary:   'violet-700',    // deep purple
+  secondary: 'sky-300',       // baby blue
+  accent:    'slate-300',     // silver
+  glow:      'rgba(124,58,237,0.4)',
+  badge:     'bg-violet-900 border-violet-500 text-sky-300',
+} as const;
+
+/** Tailwind class refs for PDX (Prime Dice) UI theming */
+export const PDX_COLORS = {
+  primary:   'emerald-500',   // emerald green
+  secondary: 'blue-700',      // sapphire blue
+  accent:    'amber-400',     // gold
+  glow:      'rgba(16,185,129,0.4)',
+  badge:     'bg-emerald-950 border-emerald-500 text-amber-400',
+} as const;

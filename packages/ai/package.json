@@ -1,10 +1,11 @@
 {
   "name": "@farkle/ai",
-  "version": "0.0.0",
-  "private": true,
-  "main": "./src/EvolutionAI.ts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
-    "@farkle/shared": "*",
-    "@farkle/engine": "*"
+    "@google/generative-ai": "^0.21.0"
   }
 }

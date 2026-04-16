@@ -15,10 +15,15 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 export default function ScorePopup({ popup, gridSize, tileSize, onDone }: Props) {
-  const gap = 8;
-  const padding = 8;
-  const left = padding + popup.col * (tileSize + gap) + tileSize / 2;
-  const top  = padding + popup.row * (tileSize + gap) - 20;
+  const gap = 2;
+  const padding = 0;
+  const col = popup.col ?? 0;
+  const row = popup.row ?? 0;
+  const rawLeft = padding + col * (tileSize + gap) + tileSize / 2;
+  const rawTop  = padding + row * (tileSize + gap) - 20;
+
+  const left = isNaN(rawLeft) ? 0 : rawLeft;
+  const top = isNaN(rawTop) ? 0 : rawTop;
 
   const color = COLOR_MAP[popup.color] || '#ffffff';
 

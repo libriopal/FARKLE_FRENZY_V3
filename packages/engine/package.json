@@ -1,0 +1,10 @@
+{
+  "name": "@farkle/engine",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/GameEngine.ts",
+  "dependencies": {
+    "@farkle/shared": "*",
+    "nanoid": "^5.1.6"
+  }
+}

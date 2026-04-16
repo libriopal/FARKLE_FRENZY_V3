@@ -1,0 +1,16 @@
+{
+  "name": "farkle-frenzy",
+  "private": true,
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/client\" \"npm run dev -w apps/server\"",
+    "build": "npm run build -w apps/client",
+    "sim": "npx tsx scripts/monte-carlo.ts",
+    "typecheck": "tsc --project apps/client/tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

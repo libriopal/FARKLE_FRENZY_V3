@@ -1,0 +1,10 @@
+{
+  "name": "@farkle/ai",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/EvolutionAI.ts",
+  "dependencies": {
+    "@farkle/shared": "*",
+    "@farkle/engine": "*"
+  }
+}

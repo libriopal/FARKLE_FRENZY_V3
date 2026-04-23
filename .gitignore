@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Controller-C staging area
+.ff-verify/temp/
+.ff-verify/locks/
+# Keep reports for audit
+!.ff-verify/reports/

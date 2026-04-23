@@ -6,7 +6,13 @@
     "dev": "concurrently \"npm run dev -w apps/client\" \"npm run dev -w apps/server\"",
     "build": "npm run build -w apps/client",
     "sim": "npx tsx scripts/monte-carlo.ts",
-    "typecheck": "tsc --project apps/client/tsconfig.json --noEmit"
+    "typecheck": "tsc --project apps/client/tsconfig.json --noEmit",
+    "controller": "tsx controller/controller.ts",
+    "ctrl": "tsx controller/controller.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.51.0",
+    "ts-morph": "^23.0.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
